@@ -76,6 +76,29 @@ def reduce_puzzle(values):
             return False
     return values
 
+def search(values):
+    """
+    Using depth-first search and propagation, create a search tree and solve the sudoku.
+    """
+    # First, reduce the puzzle using the previous function
+    values = reduce_puzzle(values)
+    if values is False:
+        return False
+    # Solved
+    if sum(len(v) > 1 for v in values.values()) == 0: 
+        return values
+    # Choose one of the unfilled squares with the fewest possibilities
+    non_solved = {k:len(v) for k,v in values.items() if len(v) > 1}
+    key_min = min(non_solved.keys(), key=non_solved.get)
+    # Recursion to solve each one of the resulting sudokus
+    for val in values[key_min]:
+        values_copy = values.copy()
+        values_copy[key_min] = val
+        leaf = search(values_copy)
+        if leaf:
+            return leaf
+
+
 def display(values):
     """
     Display the values as a 2-D grid.
