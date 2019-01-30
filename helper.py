@@ -1,5 +1,20 @@
+rows = 'ABCDEFGHI'
+cols = '123456789'
+
 def cross(a, b):
     return [s+t for s in a for t in b]
+
+
+boxes = cross(rows, cols)
+
+row_units = [cross(r, cols) for r in rows]
+column_units = [cross(rows, c) for c in cols]
+square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+diag_units = [[rows[i]+cols[i] for i in range(9)], [rows[i]+cols[8-i] for i in range(9)]]
+unitlist = row_units + column_units + square_units + diag_units
+units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
+peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
+
 
 def grid_values(grid):
     """Convert grid string into {<box>: <value>} dict with '123456789' value for empties.
@@ -25,7 +40,8 @@ def eliminate(values):
     Go through all the boxes, and whenever there is a box with a single value,
     eliminate this value from the set of values of all its peers.
 
-    Args:
+    Args:eiddccglbtfljjnnfeuceljigglkueercckhhefeiftd
+
         values: Sudoku in dictionary form.
     Returns:
         Resulting Sudoku in dictionary form after eliminating values.
@@ -75,6 +91,7 @@ def reduce_puzzle(values):
         if len([box for box in values.keys() if len(values[box]) == 0]):
             return False
     return values
+    
 
 def search(values):
     """
@@ -98,6 +115,18 @@ def search(values):
         if leaf:
             return leaf
 
+
+def naked_twins(values):
+    out = values.copy()
+    for k, v in values.items():
+        if len(v) == 2:
+            for n in peers[k]:
+                if values[n] == v:
+                    for n1 in peers[k].intersection(peers[n]):
+                        for d in v:
+                            out[n1] = out[n1].replace(d,'')
+    return out
+                                
 
 def display(values):
     """
